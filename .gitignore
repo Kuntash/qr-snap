@@ -16,7 +16,7 @@
 /build
 
 #yarn
-/.yarn/
+.yarn/*
 
 # misc
 .DS_Store

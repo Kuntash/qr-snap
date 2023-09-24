@@ -1,0 +1,1 @@
+export { QRDashboardTemplate } from "./QRDashboardTemplate"

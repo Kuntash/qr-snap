@@ -1,0 +1,1 @@
+export { AttendanceTemplate } from "./AttendanceTemplate"

@@ -1,0 +1,1 @@
+export { QRTemplatesList } from "./QRTemplatesList"

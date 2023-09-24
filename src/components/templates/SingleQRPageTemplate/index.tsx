@@ -1,0 +1,1 @@
+export { SingleQRPageTemplate } from "./SingleQRPageTemplate"

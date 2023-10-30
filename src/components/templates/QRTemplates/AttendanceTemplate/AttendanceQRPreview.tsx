@@ -33,18 +33,17 @@ export const AttendanceQRPreview = () => {
         QR code preview
       </h1>
       <Card className="flex justify-center items-center flex-col p-4">
-        <CardHeader className="pt-0">
-          <h3 className="text-lg font-semibold tracking-tighter">{title}</h3>
+        <CardHeader className="p-0">
+          {title && (
+            <h3 className="text-lg font-semibold tracking-tighter">{title}</h3>
+          )}
 
           {sortedActivationDays?.length > 0 && (
             <p className="text-muted-foreground">
-              {DAYS?.[sortedActivationDays[0] as keyof typeof DAYS]}
-
-              {sortedActivationDays?.length > 1 && (
-                <>
-                  - {DAYS?.[sortedActivationDays.at(-1) as keyof typeof DAYS]}
-                </>
-              )}
+              {sortedActivationDays?.length > 1 &&
+                sortedActivationDays?.map((activationDayIndex) => (
+                  <> {DAYS?.[activationDayIndex as keyof typeof DAYS]},</>
+                ))}
             </p>
           )}
           {(activationTime || deactivationTime) && (
@@ -61,7 +60,7 @@ export const AttendanceQRPreview = () => {
             </p>
           )}
         </CardHeader>
-        <QRCode value={qrId} size={480} fgColor={THEME.primary} />
+        <QRCode value={qrId} size={380} fgColor={THEME.primary} />
       </Card>
     </>
   )

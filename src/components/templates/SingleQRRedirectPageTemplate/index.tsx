@@ -1,0 +1,1 @@
+export { SingleQRRedirectPageTemplate } from "./SingleQRRedirectPageTemplate"

@@ -1,10 +1,17 @@
+import { useUser } from "@clerk/nextjs"
 import { QRTemplatesList } from "@main/components/organisms/QRTemplatesList"
 import { Button } from "@main/components/ui/button"
 import { Dialog, DialogTrigger } from "@main/components/ui/dialog"
+import { useAllQRCodesQuery } from "@main/hooks/queries/useAllQRCodesQuery"
 import { Plus } from "lucide-react"
 import React from "react"
 
 export const QRDashboardTemplate = () => {
+  const user = useUser()
+  const { data: allQRCodes } = useAllQRCodesQuery()
+  if (!user.isLoaded) {
+    return <p>Loader</p>
+  }
   return (
     <div className="h-screen flex justify-center">
       <div className="flex p-3 gap-x-4 flex-col max-w-6xl w-full">
@@ -12,8 +19,6 @@ export const QRDashboardTemplate = () => {
         <section className="flex">
           <p className="text-lg tracking-tighter font-bold">QR Snap</p>
         </section>
-
-        
 
         <section className="flex justify-between pt-4">
           <h1 className="text-3xl tracking-tighter font-bold">Your QR codes</h1>

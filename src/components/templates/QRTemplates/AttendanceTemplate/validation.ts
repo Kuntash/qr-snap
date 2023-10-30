@@ -22,6 +22,16 @@ export const AttendanceTemplateValidation = z.object({
     .string()
     .url({ message: "Please enter a valid URL" })
     .optional(),
+
+  /* validation for geofencing */
+  geofence: z
+    .array(
+      z.object({
+        lat: z.number(),
+        lng: z.number(),
+      })
+    )
+    .optional(),
 })
 
 export type AttendanceFormSchema = z.infer<typeof AttendanceTemplateValidation>

@@ -1,4 +1,5 @@
 import React from "react"
+import Router from "next/router"
 import { useFormContext } from "react-hook-form"
 import { AttendanceFormSchema } from "./validation"
 import { Input } from "@main/components/ui/input"
@@ -13,15 +14,35 @@ import {
 import { Button } from "@main/components/ui/button"
 import { DaySelect } from "@main/components/molecules/DaySelect"
 import { Card } from "@main/components/ui/card"
+import { GeofenceMap } from "@main/components/molecules/GeofenceMap"
+import { useUpdateQRCodeMutation } from "@main/hooks/mutations/useUpdateQRCodeMutation"
+import { useToast } from "@main/components/ui/use-toast"
 
 export const AttendanceTemplateForm = () => {
+  /* qr id from the router */
+
+  const qrId = Router.query?.qrId?.toString() as string
+  const { toast } = useToast()
   /* Submit form data */
   const form = useFormContext<AttendanceFormSchema>()
+  const updateQRCodeMutation = useUpdateQRCodeMutation({ qrId })
   console.log(form.formState.errors)
   const onSubmit = (data: AttendanceFormSchema) => {
-    console.log(
-      "🚀 ~ file: AttendanceTemplateForm.tsx:19 ~ onSubmit ~ data:",
-      data
+    updateQRCodeMutation.mutate(
+      { qrId, updatePayload: data },
+      {
+        onSuccess: (data) => {
+          /* Success toast */
+        },
+        onError: () => {
+          /*  Error toast */
+          toast({
+            variant: "destructive",
+            title: "Uh oh! Something went wrong.",
+            description: "There was a problem with your request.",
+          })
+        },
+      }
     )
   }
   return (
@@ -101,7 +122,21 @@ export const AttendanceTemplateForm = () => {
           />
         </div>
       </FormItem>
-
+      {/* Optional geofencing */}
+      <FormItem>
+        <FormLabel>Geofence QR code access</FormLabel>
+        <FormControl>
+          <FormField
+            control={form.control}
+            name="geofence"
+            render={({ field }) => (
+              <Card className="p-4">
+                <GeofenceMap path={field.value} onChange={field.onChange} />
+              </Card>
+            )}
+          />
+        </FormControl>
+      </FormItem>
       {/* Optional google spreadsheet url */}
 
       {/* Submit button */}

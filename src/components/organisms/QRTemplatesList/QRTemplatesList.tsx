@@ -1,3 +1,4 @@
+import { useUser } from "@clerk/nextjs"
 import { Button } from "@main/components/ui/button"
 import {
   Card,
@@ -12,26 +13,48 @@ import {
   DialogTitle,
 } from "@main/components/ui/dialog"
 import { Separator } from "@main/components/ui/separator"
+import { useToast } from "@main/components/ui/use-toast"
 import { QRTypes } from "@main/constants/QRTypes"
+import { useCreateQRCodeMutation } from "@main/hooks/mutations/useCreateQRCodeMutation"
 import { Loader2 } from "lucide-react"
 import Router from "next/router"
 import React, { useState } from "react"
 
 export const QRTemplatesList = () => {
+  const { toast } = useToast()
   const [selectedTemplate, setSelectedTemplate] = useState<
     keyof typeof QRTypes | null
   >(null)
-  const [isCreatingNewQR, setIsCreatingNewQR] = useState(false)
-
+  const createQRCodeMutation = useCreateQRCodeMutation()
+  const user = useUser()
   const createNewQR = async () => {
-    setIsCreatingNewQR(true)
-    /* mimic api request */
-    setTimeout(() => {
-      setIsCreatingNewQR(false)
-      Router.push(`/dashboard/qr-id?template=${selectedTemplate}`, undefined, {
-        shallow: true,
-      })
-    }, 500)
+    if (!selectedTemplate) return
+    createQRCodeMutation.mutate(
+      {
+        template: selectedTemplate,
+        createdBy: user.user?.id as string,
+      },
+      {
+        onSuccess: (data) => {
+          if (data?._id) {
+            Router.push(
+              `/dashboard/${data?._id}?template=${selectedTemplate}`,
+              undefined,
+              {
+                shallow: true,
+              }
+            )
+          }
+        },
+        onError: () => {
+          toast({
+            variant: "destructive",
+            title: "Uh oh! Something went wrong.",
+            description: "There was a problem with your request.",
+          })
+        },
+      }
+    )
   }
 
   return (
@@ -65,9 +88,11 @@ export const QRTemplatesList = () => {
             onClick={() => {
               createNewQR()
             }}
-            disabled={isCreatingNewQR}
+            disabled={
+              createQRCodeMutation.isLoading || selectedTemplate === null
+            }
           >
-            {isCreatingNewQR && (
+            {createQRCodeMutation.isLoading && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             )}
             Confirm template

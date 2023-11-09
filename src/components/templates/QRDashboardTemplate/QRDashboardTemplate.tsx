@@ -5,10 +5,13 @@ import { Dialog, DialogTrigger } from "@main/components/ui/dialog"
 import { useAllQRCodesQuery } from "@main/hooks/queries/useAllQRCodesQuery"
 import { Plus } from "lucide-react"
 import React from "react"
+import { AllQRTable } from "./AllQRTable"
 
 export const QRDashboardTemplate = () => {
   const user = useUser()
   const { data: allQRCodes } = useAllQRCodesQuery()
+
+  /* TODO: a good skeleton loader */
   if (!user.isLoaded) {
     return <p>Loader</p>
   }
@@ -20,6 +23,7 @@ export const QRDashboardTemplate = () => {
           <p className="text-lg tracking-tighter font-bold">QR Snap</p>
         </section>
 
+        {/* Header section */}
         <section className="flex justify-between pt-4">
           <h1 className="text-3xl tracking-tighter font-bold">Your QR codes</h1>
           <Dialog>
@@ -31,6 +35,11 @@ export const QRDashboardTemplate = () => {
             </DialogTrigger>
             <QRTemplatesList />
           </Dialog>
+        </section>
+
+        {/* All QR code table section */}
+        <section className="pt-4">
+          {allQRCodes?.length ? <AllQRTable /> : <div>No QR codes</div>}
         </section>
       </div>
     </div>

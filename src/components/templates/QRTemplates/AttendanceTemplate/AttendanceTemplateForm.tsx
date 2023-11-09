@@ -1,5 +1,4 @@
 import React from "react"
-import Router from "next/router"
 import { useFormContext } from "react-hook-form"
 import { AttendanceFormSchema } from "./validation"
 import { Input } from "@main/components/ui/input"
@@ -14,37 +13,21 @@ import {
 import { Button } from "@main/components/ui/button"
 import { DaySelect } from "@main/components/molecules/DaySelect"
 import { Card } from "@main/components/ui/card"
-import { GeofenceMap } from "@main/components/molecules/GeofenceMap"
-import { useUpdateQRCodeMutation } from "@main/hooks/mutations/useUpdateQRCodeMutation"
-import { useToast } from "@main/components/ui/use-toast"
+import { format } from "date-fns"
+import { useQRTemplateContext } from "@main/context/QRTemplateContext"
+import { GeofenceMapMemoized } from "@main/components/molecules/GeofenceMap/GeofenceMap"
 
-export const AttendanceTemplateForm = () => {
-  /* qr id from the router */
+export const AttendanceTemplateForm = (props: {
+  // eslint-disable-next-line no-unused-vars
+  onSubmit: (data: AttendanceFormSchema) => void
+}) => {
+  const { isEditing } = useQRTemplateContext()
+  const { onSubmit } = props
 
-  const qrId = Router.query?.qrId?.toString() as string
-  const { toast } = useToast()
   /* Submit form data */
   const form = useFormContext<AttendanceFormSchema>()
-  const updateQRCodeMutation = useUpdateQRCodeMutation({ qrId })
+
   console.log(form.formState.errors)
-  const onSubmit = (data: AttendanceFormSchema) => {
-    updateQRCodeMutation.mutate(
-      { qrId, updatePayload: data },
-      {
-        onSuccess: (data) => {
-          /* Success toast */
-        },
-        onError: () => {
-          /*  Error toast */
-          toast({
-            variant: "destructive",
-            title: "Uh oh! Something went wrong.",
-            description: "There was a problem with your request.",
-          })
-        },
-      }
-    )
-  }
   return (
     <form
       className="flex flex-col gap-y-6"
@@ -122,6 +105,29 @@ export const AttendanceTemplateForm = () => {
           />
         </div>
       </FormItem>
+
+      {/* Select the deactivation date for the QR code */}
+
+      <FormField
+        control={form.control}
+        name="deactivationDate"
+        render={({ field: { onChange, value } }) => (
+          <FormItem>
+            <FormLabel>Class end date</FormLabel>
+            <FormControl>
+              <Input
+                type="date"
+                value={format(new Date(value), "yyyy-MM-dd")}
+                onChange={(e) => {
+                  onChange(e.target.value)
+                }}
+              />
+            </FormControl>
+            <FormDescription>QR deactivates at this time</FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
       {/* Optional geofencing */}
       <FormItem>
         <FormLabel>Geofence QR code access</FormLabel>
@@ -131,7 +137,10 @@ export const AttendanceTemplateForm = () => {
             name="geofence"
             render={({ field }) => (
               <Card className="p-4">
-                <GeofenceMap path={field.value} onChange={field.onChange} />
+                <GeofenceMapMemoized
+                  bounds={field.value}
+                  onChange={field.onChange}
+                />
               </Card>
             )}
           />
@@ -142,7 +151,7 @@ export const AttendanceTemplateForm = () => {
       {/* Submit button */}
 
       <Button className="w-max" type="submit">
-        Publish QR code
+        {isEditing ? "Update QR code" : "Publish QR code"}
       </Button>
     </form>
   )

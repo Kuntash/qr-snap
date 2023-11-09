@@ -12,10 +12,10 @@ export const DaySelect = (props: DaySelectProps) => {
         <Card
           key={day}
           className={`${
-            selectedDays.includes(Number(day)) && "border-primary"
+            selectedDays?.includes(Number(day)) && "border-primary"
           } cursor-pointer border-2 flex-1 text-center`}
           onClick={() => {
-            if (selectedDays.includes(Number(day))) {
+            if (selectedDays?.includes(Number(day))) {
               onChange(selectedDays.filter((d) => d !== Number(day)))
               return
             }

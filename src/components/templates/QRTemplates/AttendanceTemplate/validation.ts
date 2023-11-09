@@ -11,11 +11,15 @@ export const AttendanceTemplateValidation = z.object({
     .min(1, { message: "Please select atleast one day of the week" }),
 
   activationTimes: z.object({
-    fromTime: z.string().optional(),
+    fromTime: z.string(),
     fromTimeOffset: z.number().optional(),
-    toTime: z.string().optional(),
+    toTime: z.string(),
     toTimeOffset: z.number().optional(),
   }),
+
+  deactivationDate: z.string().refine((value) => {
+    return new Date(value) > new Date()
+  }, "Date can't be in the past"),
 
   /* validation for integrations */
   googleSheetURL: z
@@ -24,14 +28,12 @@ export const AttendanceTemplateValidation = z.object({
     .optional(),
 
   /* validation for geofencing */
-  geofence: z
-    .array(
-      z.object({
-        lat: z.number(),
-        lng: z.number(),
-      })
-    )
-    .optional(),
+  geofence: z.object({
+    north: z.number(),
+    east: z.number(),
+    south: z.number(),
+    west: z.number(),
+  }),
 })
 
 export type AttendanceFormSchema = z.infer<typeof AttendanceTemplateValidation>

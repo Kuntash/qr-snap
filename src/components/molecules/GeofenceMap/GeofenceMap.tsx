@@ -1,47 +1,38 @@
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import React, { memo, useCallback, useEffect, useRef, useState } from "react"
 import { GoogleMap, LoadScript, RectangleF } from "@react-google-maps/api"
 import { GeofenceMapProps } from "./types"
 import { cn } from "@main/lib/utils"
 
 export const GeofenceMap = (props: GeofenceMapProps) => {
-  const { onChange, path, className } = props
+  const { onChange, bounds, className } = props
 
   const [mapCenter, setMapCenter] = useState<google.maps.LatLngLiteral | null>(
     null
   )
-
-  const [geofenceBounds, setGeofenceBounds] =
-    useState<google.maps.LatLngBoundsLiteral | null>()
-
   const rectangleRef = useRef<google.maps.Rectangle | null>(null)
-
-  // Call setPath with new edited path
-  const onEdit = useCallback(() => {
-    if (rectangleRef.current) {
-    }
-  }, [setGeofenceBounds])
 
   const onGeofenceLoad = useCallback((rectangle: google.maps.Rectangle) => {
     if (rectangle) {
       rectangleRef.current = rectangle
     }
   }, [])
-
   useEffect(() => {
+    if (bounds) {
+      console.log("bounds", bounds)
+      setMapCenter({
+        lat: (bounds.north + bounds.south) / 2,
+        lng: (bounds.east + bounds.west) / 2,
+      })
+      return
+    }
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
+        console.log("position", position)
         setMapCenter({
           lat: position.coords.latitude,
           lng: position.coords.longitude,
         })
-
-        rectangleRef.current?.setBounds({
-          north: position.coords.latitude + 0.0001,
-          south: position.coords.latitude - 0.0001,
-          east: position.coords.longitude + 0.0001,
-          west: position.coords.longitude - 0.0001,
-        })
-        setGeofenceBounds({
+        onChange({
           north: position.coords.latitude + 0.0001,
           south: position.coords.latitude - 0.0001,
           east: position.coords.longitude + 0.0001,
@@ -67,13 +58,27 @@ export const GeofenceMap = (props: GeofenceMapProps) => {
           "h-[400px] w-full",
           className
         )}
-        zoom={18}
+        zoom={20}
         center={mapCenter as google.maps.LatLngLiteral}
       >
         <RectangleF
-          bounds={geofenceBounds as google.maps.LatLngBoundsLiteral}
+          bounds={bounds as google.maps.LatLngBoundsLiteral}
           editable
           draggable
+          onBoundsChanged={() => {
+            const bounds: google.maps.LatLngBoundsLiteral = {
+              north:
+                rectangleRef.current?.getBounds()?.getNorthEast()?.lat() ?? 0,
+              east:
+                rectangleRef.current?.getBounds()?.getNorthEast()?.lng() ?? 0,
+              south:
+                rectangleRef.current?.getBounds()?.getSouthWest()?.lat() ?? 0,
+              west:
+                rectangleRef.current?.getBounds()?.getSouthWest()?.lng() ?? 0,
+            }
+            onChange(bounds)
+            console.log("🚀 ~ file: GeofenceMap.tsx:59 ~ rectangleR", bounds)
+          }}
           onLoad={onGeofenceLoad}
           onUnmount={onRectangleUnMount}
         />
@@ -97,3 +102,21 @@ export const GeofenceMap = (props: GeofenceMapProps) => {
     </LoadScript>
   )
 }
+
+export const GeofenceMapMemoized = memo(GeofenceMap, (oldProps, newProps) => {
+  const oldNorth = oldProps.bounds?.north.toFixed(5)
+  const oldSouth = oldProps.bounds?.south.toFixed(5)
+  const oldEast = oldProps.bounds?.east.toFixed(5)
+  const oldWest = oldProps.bounds?.west.toFixed(5)
+
+  const newNorth = newProps.bounds?.north.toFixed(5)
+  const newSouth = newProps.bounds?.south.toFixed(5)
+  const newEast = newProps.bounds?.east.toFixed(5)
+  const newWest = newProps.bounds?.west.toFixed(5)
+  return (
+    oldNorth === newNorth &&
+    oldSouth === newSouth &&
+    oldEast === newEast &&
+    oldWest === newWest
+  )
+})

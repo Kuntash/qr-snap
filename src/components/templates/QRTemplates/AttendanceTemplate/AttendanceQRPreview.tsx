@@ -25,7 +25,7 @@ export const AttendanceQRPreview = () => {
     activationTime,
     deactivationTime
   )
-  const sortedActivationDays = activationDays.sort((a, b) => a - b)
+  const sortedActivationDays = activationDays?.sort((a, b) => a - b)
 
   return (
     <>

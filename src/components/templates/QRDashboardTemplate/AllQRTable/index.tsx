@@ -1,0 +1,1 @@
+export { AllQRTable } from "./AllQRTable"

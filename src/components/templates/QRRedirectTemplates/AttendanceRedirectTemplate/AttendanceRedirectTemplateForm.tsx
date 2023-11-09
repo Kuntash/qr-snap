@@ -15,30 +15,38 @@ import Router from "next/router"
 import { Loader2 } from "lucide-react"
 import { useCreateQRFormVaultMutation } from "@main/hooks/mutations/useCreateQRFormVaultMutation"
 import { useToast } from "@main/components/ui/use-toast"
+import { useSingleQRCodeQuery } from "@main/hooks/queries/useSingleQRCodeQuery"
 
 export const AttendanceRedirectTemplateForm = () => {
   /* qr id from the router */
   const qrId = Router.query?.qrId?.toString() as string
   const { toast } = useToast()
+
+  const { data: singleQRCodeData } = useSingleQRCodeQuery({
+    qrId: qrId as string,
+  })
+
   const createQRFormVaultMutation = useCreateQRFormVaultMutation()
   /* Submit form data */
   const form = useFormContext<AttendanceRedirectFormSchema>()
   const onSubmit = (data: AttendanceRedirectFormSchema) => {
     const payload = {
       ...data,
+      template: singleQRCodeData?.template,
       qrId,
     }
+
     createQRFormVaultMutation.mutate(payload, {
       onSuccess: () => {
         toast({
           description: "Your attendance has been submitted",
         })
       },
-      onError: () => {
+      onError: (error: any) => {
         toast({
           variant: "destructive",
           title: "Uh oh! Something went wrong.",
-          description: "There was a problem with your request.",
+          description: error?.response?.data?.message,
         })
       },
     })

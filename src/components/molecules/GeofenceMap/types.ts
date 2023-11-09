@@ -1,6 +1,6 @@
 export type GeofenceMapProps = {
-  path?: { lat: number; lng: number }[]
+  bounds: google.maps.LatLngBoundsLiteral
   // eslint-disable-next-line no-unused-vars
-  onChange: (path: { lat: number; lng: number }[]) => void
+  onChange: (bounds: google.maps.LatLngBoundsLiteral) => void
   className?: string
 }

@@ -26,7 +26,9 @@ export const updateQRCode = async ({
   updatePayload,
 }: {
   qrId: string
-  updatePayload: Partial<AttendanceFormSchema>
+  updatePayload: Partial<AttendanceFormSchema> & {
+    template: keyof typeof QRTypes
+  }
 }) => {
   try {
     const response = await axiosInstance.put(`/qrcode/${qrId}`, updatePayload)

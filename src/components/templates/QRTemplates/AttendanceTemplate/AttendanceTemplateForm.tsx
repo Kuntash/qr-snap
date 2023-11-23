@@ -107,7 +107,6 @@ export const AttendanceTemplateForm = (props: {
       </FormItem>
 
       {/* Select the deactivation date for the QR code */}
-
       <FormField
         control={form.control}
         name="deactivationDate"
@@ -124,6 +123,28 @@ export const AttendanceTemplateForm = (props: {
               />
             </FormControl>
             <FormDescription>QR deactivates at this time</FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {/* Optional google spreadsheet */}
+      <FormField
+        control={form.control}
+        name="googleSheetURL"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Google spreadsheet</FormLabel>
+            <FormControl>
+              <Input
+                placeholder="Enter your google spreadsheet Id"
+                {...field}
+              />
+            </FormControl>
+            <FormDescription>
+              Please give sheet&apos;s editor access to{" "}
+              <b>qr-snap@appspot.gserviceaccount.com</b> email.
+            </FormDescription>
             <FormMessage />
           </FormItem>
         )}

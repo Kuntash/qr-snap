@@ -22,10 +22,7 @@ export const AttendanceTemplateValidation = z.object({
   }, "Date can't be in the past"),
 
   /* validation for integrations */
-  googleSheetURL: z
-    .string()
-    .url({ message: "Please enter a valid URL" })
-    .optional(),
+  googleSheetURL: z.string().optional(),
 
   /* validation for geofencing */
   geofence: z.object({
